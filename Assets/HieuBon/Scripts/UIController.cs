@@ -7,6 +7,7 @@ namespace HieuBon
         public static UIController instance;
 
         public GameObject touchHover;
+        public Camera cam;
 
         public void Awake()
         {

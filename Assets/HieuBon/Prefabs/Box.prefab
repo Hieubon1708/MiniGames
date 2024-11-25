@@ -202,7 +202,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 5}
+  m_AnchoredPosition: {x: 0, y: 3.5}
   m_SizeDelta: {x: 90, y: 90}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4748350762827393758
@@ -331,6 +331,7 @@ GameObject:
   - component: {fileID: 2653395448200905713}
   - component: {fileID: 2943196850184680758}
   - component: {fileID: 302665428332838276}
+  - component: {fileID: 4107234963683718032}
   m_Layer: 5
   m_Name: Box
   m_TagString: Box
@@ -410,12 +411,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00f4dc02e581b7246ac79663e1e57e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rect: {fileID: 5876486155253029952}
   isStart: 0
   isEnd: 0
   isVisible: 0
+  isOK: 0
   lightAni: {fileID: 8768306606944017245}
-  iconStart: {fileID: 3270211924901478016}
-  iconEnd: {fileID: 5688145684986386902}
+  image: {fileID: 2943196850184680758}
+  iconStart: {fileID: 148172640375544003}
+  iconEnd: {fileID: 8360287927058568746}
+  canvasGroup: {fileID: 4107234963683718032}
+--- !u!225 &4107234963683718032
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7833867705931163060}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &8349478866872633750
 GameObject:
   m_ObjectHideFlags: 0

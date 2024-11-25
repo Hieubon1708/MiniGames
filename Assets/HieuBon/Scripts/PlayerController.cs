@@ -8,11 +8,15 @@ namespace HieuBon
     {
         public bool isStartDrag;
         public bool isDrag;
-        public int totalWin;
-        public List<GameObject> boxPassed = new List<GameObject>();
         public List<Box> scBoxPassed = new List<Box>();
         public Box boxSelect;
         public LineRenderer lineRenderer;
+
+        public void SetColorLine(Color color)
+        {
+            lineRenderer.startColor = color;
+            lineRenderer.endColor = color;
+        }
 
         public void Update()
         {
@@ -48,18 +52,26 @@ namespace HieuBon
                 for (int i = 0; i < results.Count; i++)
                 {
                     GameObject e = results[i].gameObject;
-                    if (e.CompareTag("Box") && !boxPassed.Contains(e))
+                    if (e.CompareTag("Box"))
                     {
                         boxSelect = GameController.instance.GetBox(e);
-                        Debug.Log(boxSelect.name);
-                        boxPassed.Add(e);
+                        if(!boxSelect.isOK || boxSelect.isVisible) return;
+                        Debug.Log(boxSelect.transform.position);
+
+                        boxSelect.Show();
+
                         scBoxPassed.Add(boxSelect);
-                        boxSelect.PlayLightAni();
                         lineRenderer.positionCount++;
                         lineRenderer.SetPosition(lineRenderer.positionCount - 1, new Vector3(boxSelect.transform.position.x, boxSelect.transform.position.y + 0.25f, 100));
                     }
                 }
             }
+        }
+
+        public void SetLineStart(Vector2 pos)
+        {
+            lineRenderer.positionCount++;
+            lineRenderer.SetPosition(lineRenderer.positionCount - 1, new Vector3(pos.x, pos.y + 0.25f, 100));
         }
 
         void Cut(Box box)
@@ -69,9 +81,7 @@ namespace HieuBon
 
         public void Restart()
         {
-            boxPassed.Clear();
             scBoxPassed.Clear();
-            totalWin = 0;
         }
     }
 }

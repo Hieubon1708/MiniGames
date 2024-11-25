@@ -8,19 +8,30 @@ namespace HieuBon
         public bool isStart;
         public bool isEnd;
         public bool isVisible;
+        public bool isOK;
         public Animation lightAni;
         public Image image;
-        public GameObject iconStart;
-        public GameObject iconEnd;
+        public Image iconStart;
+        public Image iconEnd;
+        public CanvasGroup canvasGroup;
 
-        public void IsStart()
+        public void IsStart(bool isStart)
         {
-            if(isStart) iconStart.SetActive(true);
+            this.isStart = isStart;
+            if (this.isStart)
+            {
+                isVisible = true;
+                iconStart.gameObject.SetActive(true);
+                image.color = GameController.instance.boxColor;
+                iconStart.color = GameController.instance.lineColor;
+                GameController.instance.playerController.SetLineStart(transform.position);
+            }
         }
 
-        public void IsEnd()
+        public void IsOk(bool isOK)
         {
-            if (isEnd) iconEnd.SetActive(true);
+            this.isOK = isOK;
+            if (!this.isOK) canvasGroup.alpha = 0;
         }
 
         public void PlayLightAni()
@@ -28,9 +39,29 @@ namespace HieuBon
             lightAni.Play();
         }
 
-        public void SetBoxColor()
+        public void Hide()
         {
+            isVisible = false;
+            image.color = GameController.instance.defaultColor;
+        }
+
+        public void Show()
+        {
+            isVisible = true;
             image.color = GameController.instance.boxColor;
+            PlayLightAni();
+        }
+
+        public void ResetBox()
+        {
+            iconStart.gameObject.SetActive(false);
+            iconEnd.gameObject.SetActive(false);
+            isVisible = false;
+            isStart = false;
+            isEnd = false;
+            isOK = false;
+            canvasGroup.alpha = 1;
+            image.color = GameController.instance.defaultColor;
         }
     }
 }
