@@ -30,7 +30,7 @@ namespace HieuBon
 
         private void Start()
         {
-            LoadLevel();
+            //LoadLevel();
         }
 
         public void SaveLevel(int i, int j, bool isVisible)

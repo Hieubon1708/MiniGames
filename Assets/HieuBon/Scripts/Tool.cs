@@ -6,90 +6,123 @@ namespace HieuBon
     public class Tool : MonoBehaviour
     {
         public Box[][] boxes;
-        public LevelConfig levelConfig;
         public List<Direction> dir = new List<Direction>();
-        public List<List<Direction>> dirTaken = new List<List<Direction>>();
-        public LineRenderer[] lineRenderers;
+        public List<DirectionTaken> dirTaken = new List<DirectionTaken>();
+        public LineRenderer line;
         int indexLine;
         public Box box;
         public List<Direction> dirTakenChild = new List<Direction>();
         public List<Box> boxPassed = new List<Box>();
         public int limit;
-
+        public int totalWin;
+        public bool isNotFound;
         public enum Direction
         {
             None, Left, Right, Top, Bottom
+        }
+
+        void MapGenerate()
+        {
+            isNotFound = false;
+            totalWin = 0;
+            dir.Clear();
+            dirTaken.Clear();
+            dirTakenChild.Clear();
+            boxPassed.Clear();
+            boxes = GameController.instance.boxes;
+            for (int k = 0; k < boxes.Length; k++)
+            {
+                for (int j = 0; j < boxes[k].Length; j++)
+                {
+                    boxes[k][j].canvasGroup.alpha = 0;
+                    boxes[k][j].iconStart.gameObject.SetActive(false);
+                    boxes[k][j].isVisible = false;
+                    boxes[k][j].isOK = false;
+                    boxes[k][j].image.color = GameController.instance.defaultColor;
+                }
+            }
+            List<BoxDataStorage> list = new List<BoxDataStorage>();
+            int min = 2, max = 4;
+            for (int i = min; i <= max; i++)
+            {
+                for (int j = min; j <= max; j++)
+                {
+                    list.Add(new BoxDataStorage(i, j));
+                }
+            }
+            int count = 3;
+            while (count > 0)
+            {
+                int random = Random.Range(0, list.Count);
+                list.RemoveAt(random);
+                count--;
+            }
+            int randomStart = Random.Range(0, list.Count);
+            for (int i = 0; i < list.Count; i++)
+            {
+                int row = list[i].row;
+                int col = list[i].col;
+                boxes[row][col].canvasGroup.alpha = 1;
+                boxes[row][col].isOK = true;
+                if (i == randomStart) boxes[row][col].IsStart(true);
+                totalWin++;
+            }
+            Restart();
         }
 
         public void Update()
         {
             if (Input.GetKeyDown(KeyCode.R))
             {
-                       }
+                Restart();
+            }
             if (Input.GetKeyDown(KeyCode.A))
             {
                 DrawLine();
             }
-            if (Input.GetKeyDown(KeyCode.L))
+            if (Input.GetKeyDown(KeyCode.C))
             {
-                lineRenderers[indexLine].positionCount = 0;
+                MapGenerate();
             }
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if (Input.GetKeyDown(KeyCode.S))
             {
-                limit--;
-                Restart();
-                DrawLine();
+                MapSave();
             }
-            if (Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                limit++;
-                Restart();
-                DrawLine();
-            }
+        }
+
+        void MapSave()
+        {
         }
 
         void Restart()
         {
-            dir.Clear();
-            dirTaken.Clear();
-            dirTakenChild.Clear();
-            boxPassed.Clear();
-            lineRenderers[indexLine].positionCount = 0;
-            boxes = GameController.instance.boxes;
-            levelConfig = GameController.instance.levelConfig;
-            for (int k = 0; k < boxes.Length; k++)
-            {
-                for (int j = 0; j < boxes[k].Length; j++)
-                {
-                    if (!levelConfig.boxConfigs[k][j].isStart) boxes[k][j].isVisible = false;
-                }
-            }
             box = GetBoxStart();
             boxPassed.Add(box);
             box.isVisible = true;
-            lineRenderers[indexLine].positionCount++;
-            lineRenderers[indexLine].SetPosition(lineRenderers[indexLine].positionCount - 1, new Vector3(box.transform.position.x, box.transform.position.y + 0.025f, 100));
+
+            Color color = Color.red;
+            line.startColor = color;
+            line.endColor = color;
+            line.startWidth = 0.1f;
+            line.endWidth = 0.1f;
+            line.positionCount = 0;
+            line.positionCount++;
+            line.SetPosition(line.positionCount - 1, new Vector3(box.transform.position.x, box.transform.position.y + 0.025f, 100));
         }
 
         void DrawLine()
         {
-            Color color = Color.red; //new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
-            lineRenderers[indexLine].startColor = color;
-            lineRenderers[indexLine].endColor = color;
-            lineRenderers[indexLine].startWidth = 0.1f;
-            lineRenderers[indexLine].endWidth = 0.1f;
-           
-            int i = 0;
-            while (i < limit)
+            while (!isNotFound)
             {
                 GetDirection(box);
                 CheckDir(box.row, box.col, dirTakenChild);
+                if (isNotFound) return;
                 if (box != null)
                 {
                     boxPassed.Add(box);
                     box.isVisible = true;
-                    lineRenderers[indexLine].positionCount++;
-                    lineRenderers[indexLine].SetPosition(lineRenderers[indexLine].positionCount - 1, new Vector3(box.transform.position.x, box.transform.position.y + 0.025f, 100));
+                    line.positionCount++;
+                    line.SetPosition(line.positionCount - 1, new Vector3(box.transform.position.x, box.transform.position.y + 0.025f, 100));
                 }
                 else
                 {
@@ -97,17 +130,12 @@ namespace HieuBon
                     boxPassed.Remove(lastBox);
                     lastBox.isVisible = false;
                     box = boxPassed[boxPassed.Count - 1];
-                    lineRenderers[indexLine].positionCount--;
+                    line.positionCount--;
                 }
-                i++;
-                if (dir.Count == 0)
+                if (boxPassed.Count == totalWin)
                 {
-                    Debug.LogWarning("Exit !!!");
-                    if (dirTaken.Count == levelConfig.totalWin)
-                    {
-                        Debug.LogWarning("Ok");
-                        return;
-                    }
+                    Debug.LogWarning("Ok");
+                    return;
                 }
             }
         }
@@ -116,17 +144,20 @@ namespace HieuBon
         {
             for (int i = 0; i < dirTaken.Count; i++)
             {
-                if (dirTaken[i].Count < dir.Count) continue;
+                if (dirTaken[i].directions.Count < dir.Count) continue;
                 bool isContain = true;
                 for (int j = 0; j < dir.Count; j++)
                 {
-                    if (dir[j] != dirTaken[i][j])
+                    if (dir[j] != dirTaken[i].directions[j])
                     {
                         isContain = false;
                         break;
                     }
                 }
-                if (isContain) return true;
+                if (isContain)
+                {
+                    return true;
+                }
             }
             return false;
         }
@@ -164,14 +195,17 @@ namespace HieuBon
                     }
                     break;
                 }
-            }
-            if (!isOk && dir.Count == 0)
-            {
-                dirTaken.Add(new List<Direction>(dirTakenChild));
-                Debug.LogError("Not found !!!");
+                temp.RemoveAt(temp.Count - 1);
             }
             if (!isOk)
             {
+                dirTaken.Add(new DirectionTaken(dirTakenChild));
+                if (dirTakenChild.Count == 0)
+                {
+                    Debug.LogError("Nok");
+                    isNotFound = true;
+                    return;
+                }
                 dirTakenChild.RemoveAt(dirTakenChild.Count - 1);
             }
         }
@@ -179,7 +213,6 @@ namespace HieuBon
         void GetDirection(Box box)
         {
             dir.Clear();
-            //Debug.LogWarning(box.row + " " + box.col);
             if (box.col - 1 >= 0 && boxes[box.row][box.col - 1].isOK && !boxes[box.row][box.col - 1].isVisible)
             {
                 dir.Add(Direction.Left);
@@ -204,10 +237,21 @@ namespace HieuBon
             {
                 for (int j = 0; j < boxes[i].Length; j++)
                 {
-                    if (levelConfig.boxConfigs[i][j].isStart) return boxes[i][j];
+                    if (boxes[i][j].iconStart.gameObject.activeSelf) return boxes[i][j];
                 }
             }
             return null;
+        }
+    }
+
+    [System.Serializable]
+    public class DirectionTaken
+    {
+        public List<Tool.Direction> directions;
+
+        public DirectionTaken(List<Tool.Direction> directions)
+        {
+            this.directions = new List<Tool.Direction>(directions);
         }
     }
 }
