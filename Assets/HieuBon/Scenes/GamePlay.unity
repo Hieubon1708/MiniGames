@@ -6257,7 +6257,6 @@ MonoBehaviour:
     boxHex: 
     totalWin: 0
   dir: 
-  dirTaken: 
   lineRenderers:
   - {fileID: 848489165}
   - {fileID: 1127165921}
@@ -6270,6 +6269,10 @@ MonoBehaviour:
   - {fileID: 1129898995}
   - {fileID: 1894877325}
   - {fileID: 98300617}
+  box: {fileID: 0}
+  dirTakenChild: 
+  boxPassed: []
+  limit: 1
 --- !u!1001 &1540151828
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -25,14 +25,7 @@ namespace HieuBon
         {
             if (Input.GetKeyDown(KeyCode.R))
             {
-                boxes = GameController.instance.boxes;
-                levelConfig = GameController.instance.levelConfig;
-                box = GetBoxStart();
-                boxPassed.Add(box);
-                box.isVisible = true;
-                lineRenderers[indexLine].positionCount++;
-                lineRenderers[indexLine].SetPosition(lineRenderers[indexLine].positionCount - 1, new Vector3(box.transform.position.x, box.transform.position.y + 0.025f, 100));
-            }
+                       }
             if (Input.GetKeyDown(KeyCode.A))
             {
                 DrawLine();
@@ -41,6 +34,41 @@ namespace HieuBon
             {
                 lineRenderers[indexLine].positionCount = 0;
             }
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                limit--;
+                Restart();
+                DrawLine();
+            }
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                limit++;
+                Restart();
+                DrawLine();
+            }
+        }
+
+        void Restart()
+        {
+            dir.Clear();
+            dirTaken.Clear();
+            dirTakenChild.Clear();
+            boxPassed.Clear();
+            lineRenderers[indexLine].positionCount = 0;
+            boxes = GameController.instance.boxes;
+            levelConfig = GameController.instance.levelConfig;
+            for (int k = 0; k < boxes.Length; k++)
+            {
+                for (int j = 0; j < boxes[k].Length; j++)
+                {
+                    if (!levelConfig.boxConfigs[k][j].isStart) boxes[k][j].isVisible = false;
+                }
+            }
+            box = GetBoxStart();
+            boxPassed.Add(box);
+            box.isVisible = true;
+            lineRenderers[indexLine].positionCount++;
+            lineRenderers[indexLine].SetPosition(lineRenderers[indexLine].positionCount - 1, new Vector3(box.transform.position.x, box.transform.position.y + 0.025f, 100));
         }
 
         void DrawLine()
@@ -50,15 +78,7 @@ namespace HieuBon
             lineRenderers[indexLine].endColor = color;
             lineRenderers[indexLine].startWidth = 0.1f;
             lineRenderers[indexLine].endWidth = 0.1f;
-
-            /*for (int k = 0; k < boxes.Length; k++)
-            {
-                for (int j = 0; j < boxes[k].Length; j++)
-                {
-                    if (!levelConfig.boxConfigs[k][j].isStart) boxes[k][j].isVisible = false;
-                }
-            }*/
-
+           
             int i = 0;
             while (i < limit)
             {
@@ -82,7 +102,7 @@ namespace HieuBon
                 i++;
                 if (dir.Count == 0)
                 {
-                    Debug.LogError("Not found !!!");
+                    Debug.LogWarning("Exit !!!");
                     if (dirTaken.Count == levelConfig.totalWin)
                     {
                         Debug.LogWarning("Ok");
