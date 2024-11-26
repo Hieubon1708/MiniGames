@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -39,21 +40,31 @@ namespace HieuBon
             return JsonConvert.DeserializeObject<LevelConfig>(js.text);
         }
 
-        public LevelDataStorage GetLevelStorage(int level, GameController.LevelType type)
+        public LevelDataStorage GetLevelStorage(GameController.LevelType type)
         {
-            string dataJs = Path.Combine(Application.persistentDataPath, type.ToString() + "/" + level + ".json");
+            string dataJs = Path.Combine(Application.persistentDataPath, type.ToString() + ".json");
             if (File.Exists(dataJs))
             {
                 string levelDataStorage = File.ReadAllText(dataJs);
                 return JsonConvert.DeserializeObject<LevelDataStorage>(levelDataStorage);
             }
-            return new LevelDataStorage();
+            else
+            {
+                return CreateLevelDataStorage();
+            }
         }
 
-        public void SaveLevel(LevelDataStorage levelDataStorage, int level, GameController.LevelType type)
+        public LevelDataStorage CreateLevelDataStorage()
+        {
+            LevelDataStorage levelDataStorage = new LevelDataStorage();
+            levelDataStorage.boxDataStorages = new List<BoxDataStorage>();
+            return levelDataStorage;
+        }
+
+        public void SaveLevel(LevelDataStorage levelDataStorage, GameController.LevelType type)
         {
             string js = JsonConvert.SerializeObject(levelDataStorage);
-            string path = Path.Combine(Application.persistentDataPath, type.ToString() + "/" + level + ".json");
+            string path = Path.Combine(Application.persistentDataPath, type.ToString() + ".json");
             File.WriteAllText(path, js);
         }
     }
@@ -61,8 +72,8 @@ namespace HieuBon
     [System.Serializable]
     public class LevelConfig
     {
+        public GameController.LevelType type;
         public string boxHex;
-        public string lineHex;
         public int totalWin;
         public BoxConfig[][] boxConfigs;
     }
@@ -77,12 +88,24 @@ namespace HieuBon
     [System.Serializable]
     public class LevelDataStorage
     {
-        public BoxDataStorage[][] boxDataStorage;
+        public List<BoxDataStorage> boxDataStorages;
     }
 
     [System.Serializable]
     public class BoxDataStorage
     {
-        public bool isVisible;
+        public int row;
+        public int col;
+
+        public BoxDataStorage()
+        {
+
+        }
+
+        public BoxDataStorage(int row, int col)
+        {
+            this.row = row;
+            this.col = col;
+        }
     }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace HieuBon
 {
@@ -29,15 +30,34 @@ namespace HieuBon
 
         private void Start()
         {
-            LoadLevel(1);
+            LoadLevel();
         }
 
-        public void LoadLevel(int level)
+        public void SaveLevel(int i, int j, bool isVisible)
+        {
+            if (isVisible) levelDataStorage.boxDataStorages.Add(new BoxDataStorage(i, j));
+            else levelDataStorage.boxDataStorages.Remove(levelDataStorage.boxDataStorages[levelDataStorage.boxDataStorages.Count - 1]);
+            dataManager.SaveLevel(levelDataStorage, levelConfig.type);
+        }
+
+        public void SaveLevel()
+        {
+            dataManager.SaveLevel(dataManager.CreateLevelDataStorage(), levelConfig.type);
+        }
+
+        public void ResartLevel()
+        {
+            SaveLevel();
+            LoadLevel();
+        }
+
+        public void LoadLevel()
         {
             ResetBoxes();
+            playerController.Restart();
 
             levelConfig = dataManager.GetLevel(1, LevelType.ExtraHard);
-            levelDataStorage = dataManager.GetLevelStorage(1, LevelType.ExtraHard);
+            levelDataStorage = dataManager.GetLevelStorage(LevelType.ExtraHard);
 
             Color color;
             if (ColorConvert(levelConfig.boxHex, out color))
@@ -48,15 +68,10 @@ namespace HieuBon
             {
                 Debug.LogError(levelConfig.boxHex);
             }
-            if (ColorConvert(levelConfig.lineHex, out color))
-            {
-                lineColor = color;
-                playerController.SetColorLine(lineColor);
-            }
-            else
-            {
-                Debug.LogError(levelConfig.lineHex);
-            }
+
+            lineColor = new Color(boxColor.r - 50f / 255f, boxColor.g - 50f / 255f, boxColor.b - 50f / 255f);
+            playerController.SetColorLine(lineColor);
+            UIController.instance.TouchSetColor(lineColor);
 
             for (int i = 0; i < boxes.Length; i++)
             {
@@ -65,6 +80,13 @@ namespace HieuBon
                     boxes[i][j].IsOk(levelConfig.boxConfigs[i][j].isOk);
                     boxes[i][j].IsStart(levelConfig.boxConfigs[i][j].isStart);
                 }
+            }
+            for (int k = 0; k < levelDataStorage.boxDataStorages.Count; k++)
+            {
+                int i = levelDataStorage.boxDataStorages[k].row;
+                int j = levelDataStorage.boxDataStorages[k].col;
+
+                boxes[i][j].LoadData();
             }
         }
 
@@ -77,6 +99,9 @@ namespace HieuBon
                 for (int j = 0; j < boxChild.Length; j++)
                 {
                     boxChild[j] = pools[count++];
+                    boxChild[j].row = i;
+                    boxChild[j].col = j;
+                    boxChild[j].name = "row " + i + " col " + j;
                 }
                 boxes[i] = boxChild;
             }
@@ -88,7 +113,7 @@ namespace HieuBon
             return false;
         }
 
-        void ResetBoxes()
+        public void ResetBoxes()
         {
             for (int i = 0; i < boxes.Length; i++)
             {

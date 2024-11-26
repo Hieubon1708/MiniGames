@@ -1,1 +1,218 @@
-{"totalWin":49, "boxHex":"#C2D368", "lineHex":"#9CAE42","boxConfigs":[[{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true}],[{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":false},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true}],[{"isStart":false,"isOk":false},{"isStart":false,"isOk":false},{"isStart":false,"isOk":true},{"isStart":true,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":false}],[{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":false},{"isStart":false,"isOk":false},{"isStart":false,"isOk":false},{"isStart":false,"isOk":true},{"isStart":false,"isOk":false}],[{"isStart":false,"isOk":false},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true}],[{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":false},{"isStart":false,"isOk":true},{"isStart":false,"isOk":false},{"isStart":false,"isOk":true}],[{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":false},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true},{"isStart":false,"isOk":true}]]}
+{
+    "type": 3,
+    "totalWin": 37,
+    "boxHex": "#C2D368",
+    "lineHex": "#9CAE42",
+    "boxConfigs": [
+        [
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            }
+        ],
+        [
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": false
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            }
+        ],
+        [
+            {
+                "isStart": false,
+                "isOk": false
+            },
+            {
+                "isStart": false,
+                "isOk": false
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": true,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": false
+            }
+        ],
+        [
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": false
+            },
+            {
+                "isStart": false,
+                "isOk": false
+            },
+            {
+                "isStart": false,
+                "isOk": false
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": false
+            }
+        ],
+        [
+            {
+                "isStart": false,
+                "isOk": false
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            }
+        ],
+        [
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": false
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": false
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            }
+        ],
+        [
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": false
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            },
+            {
+                "isStart": false,
+                "isOk": true
+            }
+        ]
+    ]
+}

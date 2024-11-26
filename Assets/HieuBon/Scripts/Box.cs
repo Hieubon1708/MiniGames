@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -5,27 +6,36 @@ namespace HieuBon
 {
     public class Box : MonoBehaviour
     {
-        public bool isStart;
-        public bool isEnd;
+        public int row;
+        public int col;
         public bool isVisible;
         public bool isOK;
         public Animation lightAni;
+        public Animation lightWinAni;
         public Image image;
         public Image iconStart;
+        public Image iconChildStart;
         public Image iconEnd;
+        public Image iconChildEnd;
         public CanvasGroup canvasGroup;
 
         public void IsStart(bool isStart)
         {
-            this.isStart = isStart;
-            if (this.isStart)
+            if (isStart)
             {
-                isVisible = true;
                 iconStart.gameObject.SetActive(true);
-                image.color = GameController.instance.boxColor;
                 iconStart.color = GameController.instance.lineColor;
-                GameController.instance.playerController.SetLineStart(transform.position);
+                LoadData();
             }
+        }
+
+        public void LoadData()
+        {
+            //Debug.LogWarning(name + " " + isVisible);
+            isVisible = true;
+            image.color = GameController.instance.boxColor;
+            GameController.instance.playerController.AddBoxPassed(this);
+            GameController.instance.playerController.LineSetPos(new Vector3(transform.position.x, transform.position.y + 0.025f, 100));
         }
 
         public void IsOk(bool isOK)
@@ -38,11 +48,32 @@ namespace HieuBon
         {
             lightAni.Play();
         }
+        
+        public void PlayLightWinAni()
+        {
+            lightWinAni.Play();
+        }
+
+        public void ShowEnd()
+        {
+            Color color = GameController.instance.lineColor;
+            iconEnd.color = color;
+            iconChildEnd.color = new Color(color.r - 150f / 255f, color.g - 150f / 255f, color.b - 150f / 255f);
+            iconEnd.gameObject.SetActive(true);
+        }
+
+        public void ShowStart()
+        {
+            Color color = GameController.instance.lineColor;
+            iconChildStart.color = new Color(color.r - 150f / 255f, color.g - 150f / 255f, color.b - 150f / 255f);
+            iconChildStart.gameObject.SetActive(true);
+        }
 
         public void Hide()
         {
             isVisible = false;
             image.color = GameController.instance.defaultColor;
+            GameController.instance.SaveLevel(row, col, isVisible);
         }
 
         public void Show()
@@ -50,15 +81,15 @@ namespace HieuBon
             isVisible = true;
             image.color = GameController.instance.boxColor;
             PlayLightAni();
+            GameController.instance.SaveLevel(row, col, isVisible);
         }
 
         public void ResetBox()
         {
             iconStart.gameObject.SetActive(false);
+            iconChildStart.gameObject.SetActive(false);
             iconEnd.gameObject.SetActive(false);
             isVisible = false;
-            isStart = false;
-            isEnd = false;
             isOK = false;
             canvasGroup.alpha = 1;
             image.color = GameController.instance.defaultColor;
