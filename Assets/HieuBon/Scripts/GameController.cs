@@ -82,17 +82,13 @@ namespace HieuBon
 
             int sizeHoriPadding = levelConfig.horiPadding;
             int sizeVertPadding = levelConfig.vertPadding;
-            int sizeHoriSpacing = sizeHoriPadding - 1;
-            int sizeVertSpacing = sizeVertPadding - 1;
-            if (sizeHoriPadding == 0) sizeHoriSpacing = 0;
-            if (sizeVertPadding == 0) sizeVertSpacing = 0;
 
             gridLayoutGroup.enabled = false;
-            gridLayoutGroup.padding.left = (int)gridLayoutGroup.cellSize.x * sizeHoriPadding + (int)gridLayoutGroup.spacing.x * sizeHoriSpacing;
-            gridLayoutGroup.padding.top = (int)gridLayoutGroup.cellSize.y * sizeVertPadding + (int)gridLayoutGroup.spacing.x * sizeVertSpacing;
+            gridLayoutGroup.padding.left = (int)gridLayoutGroup.cellSize.x * sizeHoriPadding + (int)gridLayoutGroup.spacing.x * sizeHoriPadding;
+            gridLayoutGroup.padding.top = (int)gridLayoutGroup.cellSize.y * sizeVertPadding + (int)gridLayoutGroup.spacing.y * sizeVertPadding;
+            gridLayoutGroup.enabled = true;
 
             yield return new WaitForEndOfFrame();
-            gridLayoutGroup.enabled = true;
 
             Color color;
             if (ColorConvert(levelConfig.boxHex, out color))

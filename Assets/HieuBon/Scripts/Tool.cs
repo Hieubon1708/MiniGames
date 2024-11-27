@@ -20,7 +20,6 @@ namespace HieuBon
         public int totalWin;
         public bool isNotFound;
         public BoxDataStorage boxStart;
-        public DataManager.Size size;
         public int horiPadding;
         public int vertPadding;
 
@@ -110,6 +109,15 @@ namespace HieuBon
             {
                 MapSave();
             }
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                Debug.LogWarning("Size 2x2 = " + GetTotal("2x2"));
+                Debug.LogWarning("Size 3x3 = " + GetTotal("3x3"));
+                Debug.LogWarning("Size 4x4 = " + GetTotal("4x4"));
+                Debug.LogWarning("Size 5x5 = " + GetTotal("5x5"));
+                Debug.LogWarning("Size 6x6 = " + GetTotal("6x6"));
+                Debug.LogWarning("Size 7x7 = " + GetTotal("7x7"));
+            }
         }
 
         public IEnumerator AutomaticPathFinding()
@@ -138,8 +146,8 @@ namespace HieuBon
                 }
             }
 
-            int rowStartRandom = Random.Range(0, 7);
-            int colStartRandom = Random.Range(0, 7);
+            int rowStartRandom = Random.Range(0, 4);
+            int colStartRandom = Random.Range(0, 4);
 
             box = boxes[rowStartRandom][colStartRandom];
             boxPassed.Add(box);
@@ -209,8 +217,6 @@ namespace HieuBon
             LevelConfig levelConfig = new LevelConfig();
             levelConfig.boxHex = HexConvert(GameController.instance.boxColor);
             levelConfig.totalWin = boxPassed.Count;
-            levelConfig.horiPadding = horiPadding;
-            levelConfig.vertPadding = vertPadding;
             levelConfig.boxConfigs = new BoxConfig[7][];
             levelConfig.boxPassed = new BoxDataStorage[boxPassed.Count];
             for (int i = 0; i < boxPassed.Count; i++)
@@ -228,7 +234,55 @@ namespace HieuBon
                 }
                 levelConfig.boxConfigs[i] = child;
             }
-            string folder = GetFolder(size);
+
+            int maxRow = int.MinValue;
+            int minRow = int.MaxValue;
+            int maxCol = int.MinValue;
+            int minCol = int.MaxValue;
+
+            for (int i = 0; i < boxes.Length; i++)
+            {
+                for (int j = 0; j < boxes[i].Length; j++)
+                {
+                    if (boxes[i][j].isOK)
+                    {
+                        if (boxes[i][j].row < minRow)
+                        {
+                            minRow = boxes[i][j].row;
+                        }
+                        if (boxes[i][j].row > maxRow)
+                        {
+                            maxRow = boxes[i][j].row;
+                        }
+                        if (boxes[i][j].col < minCol)
+                        {
+                            minCol = boxes[i][j].col;
+                        }
+                        if (boxes[i][j].col > maxCol)
+                        {
+                            maxCol = boxes[i][j].col;
+                        }
+                    }
+                }
+            }
+
+            string folder = "";
+            int sizeX = maxCol - minCol;
+            if (sizeX == 1) folder = "2x2";
+            else if (sizeX == 2) folder = "3x3";
+            else if (sizeX == 3) folder = "4x4";
+            else if (sizeX == 4) folder = "5x5";
+            else if (sizeX == 5) folder = "6x6";
+            else folder = "7x7";
+
+            if(minCol - 0 > boxes.Length - maxCol) levelConfig.horiPadding = -minCol;
+            else if(minCol - 0 < boxes.Length - 1 - maxCol) levelConfig.horiPadding = boxes.Length - 1 - maxCol;
+            else levelConfig.horiPadding = 0;
+
+            if (minRow - 0 > boxes.Length - maxRow) levelConfig.vertPadding = -minRow;
+            else if (minRow - 0 < boxes.Length - 1 - maxRow) levelConfig.vertPadding = boxes.Length - 1 - maxRow;
+            else levelConfig.vertPadding = 0;
+
             //levelConfig.boxConfigs[boxStart.row][boxStart.col].isStart = true;
             levelConfig.boxConfigs[boxPassed[0].row][boxPassed[0].col].isStart = true;
 
@@ -237,16 +291,12 @@ namespace HieuBon
             string path = Path.Combine(Application.dataPath, "HieuBon/Resources/" + folder + "/" + folder + "_" + level + ".json");
             File.WriteAllText(path, js);
 
+            Debug.Log("Hori Padding = " + levelConfig.horiPadding);
+            Debug.Log("Vert Padding = " + levelConfig.vertPadding);
+            Debug.Log("Min Row = " + minRow);
+            Debug.Log("Min Col = " + minCol);
+            Debug.Log("Folder = " + folder);
             Debug.Log("Save Complete !!!");
-        }
-
-        string GetFolder(DataManager.Size size)
-        {
-            if (size == DataManager.Size.Size3) return "3x3";
-            else if (size == DataManager.Size.Size4) return "4x4";
-            else if (size == DataManager.Size.Size5) return "5x5";
-            else if (size == DataManager.Size.Size6) return "6x6";
-            else return "7x7";
         }
 
         void Restart()
@@ -397,7 +447,7 @@ namespace HieuBon
             {
                 dir.Add(Direction.Left);
             }
-            if (box.col + 1 < boxes.Length && !boxes[box.row][box.col + 1].isVisible)
+            if (box.col + 1 < boxes.Length - 3 && !boxes[box.row][box.col + 1].isVisible)
             {
                 dir.Add(Direction.Right);
             }
@@ -405,7 +455,7 @@ namespace HieuBon
             {
                 dir.Add(Direction.Top);
             }
-            if (box.row + 1 < boxes[box.col].Length && !boxes[box.row + 1][box.col].isVisible)
+            if (box.row + 1 < boxes[box.col].Length - 2 && !boxes[box.row + 1][box.col].isVisible)
             {
                 dir.Add(Direction.Bottom);
             }
