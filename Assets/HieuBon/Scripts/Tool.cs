@@ -1,4 +1,7 @@
+﻿using Newtonsoft.Json;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace HieuBon
@@ -9,13 +12,18 @@ namespace HieuBon
         public List<Direction> dir = new List<Direction>();
         public List<DirectionTaken> dirTaken = new List<DirectionTaken>();
         public LineRenderer line;
-        int indexLine;
+        public Color[] color;
         public Box box;
         public List<Direction> dirTakenChild = new List<Direction>();
         public List<Box> boxPassed = new List<Box>();
         public int limit;
         public int totalWin;
         public bool isNotFound;
+        public BoxDataStorage boxStart;
+        public DataManager.Size size;
+        public int horiPadding;
+        public int vertPadding;
+
         public enum Direction
         {
             None, Left, Right, Top, Bottom
@@ -30,11 +38,16 @@ namespace HieuBon
             dirTakenChild.Clear();
             boxPassed.Clear();
             boxes = GameController.instance.boxes;
+
+            GameController.instance.boxColor = color[Random.Range(0, color.Length)];
+            GameController.instance.lineColor = new Color(GameController.instance.boxColor.r - 50f / 255f, GameController.instance.boxColor.g - 50f / 255f, GameController.instance.boxColor.b - 50f / 255f);
+            GameController.instance.playerController.SetColorLine(GameController.instance.lineColor);
+
             for (int k = 0; k < boxes.Length; k++)
             {
                 for (int j = 0; j < boxes[k].Length; j++)
                 {
-                    boxes[k][j].canvasGroup.alpha = 0;
+                    boxes[k][j].canvasGroup.alpha = 0.05f;
                     boxes[k][j].iconStart.gameObject.SetActive(false);
                     boxes[k][j].isVisible = false;
                     boxes[k][j].isOK = false;
@@ -42,7 +55,7 @@ namespace HieuBon
                 }
             }
             List<BoxDataStorage> list = new List<BoxDataStorage>();
-            int min = 2, max = 4;
+            int min = 0, max = 3;
             for (int i = min; i <= max; i++)
             {
                 for (int j = min; j <= max; j++)
@@ -50,7 +63,7 @@ namespace HieuBon
                     list.Add(new BoxDataStorage(i, j));
                 }
             }
-            int count = 3;
+            int count = Random.Range(4, 6);
             while (count > 0)
             {
                 int random = Random.Range(0, list.Count);
@@ -64,25 +77,34 @@ namespace HieuBon
                 int col = list[i].col;
                 boxes[row][col].canvasGroup.alpha = 1;
                 boxes[row][col].isOK = true;
-                if (i == randomStart) boxes[row][col].IsStart(true);
+                if (i == randomStart)
+                {
+                    boxStart = new BoxDataStorage(row, col);
+                    boxes[row][col].IsStart(true);
+                }
                 totalWin++;
             }
             Restart();
+            DrawLine();
+        }
+
+        int GetTotal(string path)
+        {
+            string folderPath = "Assets/HieuBon/Resources/" + path;
+            string[] files = Directory.GetFiles(folderPath, "*.json");
+            return files.Length;
         }
 
         public void Update()
         {
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                Restart();
-            }
             if (Input.GetKeyDown(KeyCode.A))
             {
                 DrawLine();
             }
             if (Input.GetKeyDown(KeyCode.C))
             {
-                MapGenerate();
+                //MapGenerate();
+                StartCoroutine(AutomaticPathFinding());
             }
             if (Input.GetKeyDown(KeyCode.S))
             {
@@ -90,8 +112,141 @@ namespace HieuBon
             }
         }
 
+        public IEnumerator AutomaticPathFinding()
+        {
+            isNotFound = false;
+            totalWin = 0;
+            dir.Clear();
+            dirTaken.Clear();
+            dirTakenChild.Clear();
+            boxPassed.Clear();
+            boxes = GameController.instance.boxes;
+
+            GameController.instance.boxColor = color[Random.Range(0, color.Length)];
+            GameController.instance.lineColor = new Color(GameController.instance.boxColor.r - 50f / 255f, GameController.instance.boxColor.g - 50f / 255f, GameController.instance.boxColor.b - 50f / 255f);
+            GameController.instance.playerController.SetColorLine(GameController.instance.lineColor);
+
+            for (int k = 0; k < boxes.Length; k++)
+            {
+                for (int j = 0; j < boxes[k].Length; j++)
+                {
+                    boxes[k][j].canvasGroup.alpha = 0.05f;
+                    boxes[k][j].iconStart.gameObject.SetActive(false);
+                    boxes[k][j].isVisible = false;
+                    boxes[k][j].isOK = false;
+                    boxes[k][j].image.color = GameController.instance.defaultColor;
+                }
+            }
+
+            int rowStartRandom = Random.Range(0, 7);
+            int colStartRandom = Random.Range(0, 7);
+
+            box = boxes[rowStartRandom][colStartRandom];
+            boxPassed.Add(box);
+            box.isVisible = true;
+
+            line.startColor = GameController.instance.lineColor;
+            line.endColor = GameController.instance.lineColor;
+            line.positionCount = 0;
+
+            box.IsOk(true);
+            box.IsStart(true);
+
+            while (true)
+            {
+                yield return new WaitForSeconds(0.025f);
+                GetDirectionPathFinding(box);
+                RandomDir(box.row, box.col);
+                if (dir.Count != 0)
+                {
+                    boxPassed.Add(box);
+                    box.IsOk(true);
+                    box.isVisible = true;
+                    line.positionCount++;
+                    line.SetPosition(line.positionCount - 1, new Vector3(box.transform.position.x, box.transform.position.y + 0.025f, 100));
+                }
+                else
+                {
+                    Debug.LogError("Path not found !");
+                    yield break;
+                }
+            }
+        }
+
+        void RandomDir(int row, int col)
+        {
+            if (dir.Count == 0)
+            {
+                Debug.LogError("Count = 0");
+                return;
+            }
+            int i = Random.Range(0, dir.Count);
+            if (dir[i] == Direction.Left)
+            {
+                box = boxes[row][col - 1];
+            }
+            else if (dir[i] == Direction.Right)
+            {
+                box = boxes[row][col + 1];
+            }
+            else if (dir[i] == Direction.Top)
+            {
+                box = boxes[row - 1][col];
+            }
+            else
+            {
+                box = boxes[row + 1][col];
+            }
+        }
+
+        string HexConvert(Color color)
+        {
+            return "#" + ColorUtility.ToHtmlStringRGB(color);
+        }
+
         void MapSave()
         {
+            LevelConfig levelConfig = new LevelConfig();
+            levelConfig.boxHex = HexConvert(GameController.instance.boxColor);
+            levelConfig.totalWin = boxPassed.Count;
+            levelConfig.horiPadding = horiPadding;
+            levelConfig.vertPadding = vertPadding;
+            levelConfig.boxConfigs = new BoxConfig[7][];
+            levelConfig.boxPassed = new BoxDataStorage[boxPassed.Count];
+            for (int i = 0; i < boxPassed.Count; i++)
+            {
+                levelConfig.boxPassed[i] = new BoxDataStorage(boxPassed[i].row, boxPassed[i].col);
+            }
+
+            for (int i = 0; i < levelConfig.boxConfigs.Length; i++)
+            {
+                BoxConfig[] child = new BoxConfig[7];
+                for (int j = 0; j < child.Length; j++)
+                {
+                    child[j] = new BoxConfig();
+                    child[j].isOk = GameController.instance.boxes[i][j].isOK;
+                }
+                levelConfig.boxConfigs[i] = child;
+            }
+            string folder = GetFolder(size);
+            //levelConfig.boxConfigs[boxStart.row][boxStart.col].isStart = true;
+            levelConfig.boxConfigs[boxPassed[0].row][boxPassed[0].col].isStart = true;
+
+            int level = GetTotal(folder) + 1;
+            string js = JsonConvert.SerializeObject(levelConfig);
+            string path = Path.Combine(Application.dataPath, "HieuBon/Resources/" + folder + "/" + folder + "_" + level + ".json");
+            File.WriteAllText(path, js);
+
+            Debug.Log("Save Complete !!!");
+        }
+
+        string GetFolder(DataManager.Size size)
+        {
+            if (size == DataManager.Size.Size3) return "3x3";
+            else if (size == DataManager.Size.Size4) return "4x4";
+            else if (size == DataManager.Size.Size5) return "5x5";
+            else if (size == DataManager.Size.Size6) return "6x6";
+            else return "7x7";
         }
 
         void Restart()
@@ -100,11 +255,8 @@ namespace HieuBon
             boxPassed.Add(box);
             box.isVisible = true;
 
-            Color color = Color.red;
-            line.startColor = color;
-            line.endColor = color;
-            line.startWidth = 0.1f;
-            line.endWidth = 0.1f;
+            line.startColor = GameController.instance.lineColor;
+            line.endColor = GameController.instance.lineColor;
             line.positionCount = 0;
             line.positionCount++;
             line.SetPosition(line.positionCount - 1, new Vector3(box.transform.position.x, box.transform.position.y + 0.025f, 100));
@@ -116,7 +268,12 @@ namespace HieuBon
             {
                 GetDirection(box);
                 CheckDir(box.row, box.col, dirTakenChild);
-                if (isNotFound) return;
+                if (isNotFound)
+                {
+                    System.GC.Collect();
+                    //MapGenerate();
+                    return;
+                }
                 if (box != null)
                 {
                     boxPassed.Add(box);
@@ -199,11 +356,12 @@ namespace HieuBon
             }
             if (!isOk)
             {
-                dirTaken.Add(new DirectionTaken(dirTakenChild));
+                if (dir.Count == 0) dirTaken.Add(new DirectionTaken(dirTakenChild));
                 if (dirTakenChild.Count == 0)
                 {
-                    Debug.LogError("Nok");
                     isNotFound = true;
+                    Debug.LogError("NOk");
+                    System.GC.Collect();
                     return;
                 }
                 dirTakenChild.RemoveAt(dirTakenChild.Count - 1);
@@ -229,6 +387,28 @@ namespace HieuBon
             {
                 dir.Add(Direction.Bottom);
             }
+            Debug.LogWarning(dir.Count);
+        }
+
+        void GetDirectionPathFinding(Box box)
+        {
+            dir.Clear();
+            if (box.col - 1 >= 0 && !boxes[box.row][box.col - 1].isVisible)
+            {
+                dir.Add(Direction.Left);
+            }
+            if (box.col + 1 < boxes.Length && !boxes[box.row][box.col + 1].isVisible)
+            {
+                dir.Add(Direction.Right);
+            }
+            if (box.row - 1 >= 0 && !boxes[box.row - 1][box.col].isVisible)
+            {
+                dir.Add(Direction.Top);
+            }
+            if (box.row + 1 < boxes[box.col].Length && !boxes[box.row + 1][box.col].isVisible)
+            {
+                dir.Add(Direction.Bottom);
+            }
         }
 
         Box GetBoxStart()
@@ -237,7 +417,10 @@ namespace HieuBon
             {
                 for (int j = 0; j < boxes[i].Length; j++)
                 {
-                    if (boxes[i][j].iconStart.gameObject.activeSelf) return boxes[i][j];
+                    if (boxes[i][j].iconStart.gameObject.activeSelf)
+                    {
+                        return boxes[i][j];
+                    }
                 }
             }
             return null;

@@ -1,8 +1,9 @@
 using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UIElements;
+using static UnityEngine.GraphicsBuffer;
 
 namespace HieuBon
 {
@@ -13,6 +14,7 @@ namespace HieuBon
         public List<Box> scBoxPassed = new List<Box>();
         public Box boxSelect;
         public LineRenderer lineRenderer;
+        public bool isHinting;
 
         public void SetColorLine(Color color)
         {
@@ -34,7 +36,7 @@ namespace HieuBon
         {
             if (Input.GetMouseButtonDown(0))
             {
-                if (scBoxPassed.Count == GameController.instance.levelConfig.totalWin) return;
+                if (scBoxPassed.Count == GameController.instance.levelConfig.totalWin || isHinting) return;
                 Vector2 mousePosition = Input.mousePosition;
                 PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
                 eventDataCurrentPosition.position = mousePosition;
@@ -57,12 +59,12 @@ namespace HieuBon
             if (Input.GetMouseButtonUp(0))
             {
                 isDrag = false;
-                if (scBoxPassed.Count == GameController.instance.levelConfig.totalWin) return;
+                if (scBoxPassed.Count == GameController.instance.levelConfig.totalWin || isHinting) return;
                 UIController.instance.ActiveTouch(false);
             }
             if (isDrag)
             {
-                if (scBoxPassed.Count == GameController.instance.levelConfig.totalWin) return;
+                if (scBoxPassed.Count == GameController.instance.levelConfig.totalWin || isHinting) return;
                 Vector2 mousePosition = Input.mousePosition;
                 UIController.instance.TouchHoverPosition(mousePosition);
                 PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
@@ -175,14 +177,14 @@ namespace HieuBon
 
                 if (target.row == lastSelect.row - 1 && target.col == lastSelect.col - 1)
                 {
-                    if (boxLeft && boxLeft.isOK && (!boxUp || !boxUp.isOK))
+                    if (boxLeft && boxLeft.isOK && !boxLeft.isVisible && (!boxUp || !boxUp.isOK))
                     {
                         boxLeft.Show();
                         scBoxPassed.Add(boxLeft);
                         LineSetPos(new Vector3(boxLeft.transform.position.x, boxLeft.transform.position.y + 0.025f, 100));
                         isOk = true;
                     }
-                    else if ((!boxLeft || !boxLeft.isOK) && boxUp && boxUp.isOK)
+                    else if ((!boxLeft || !boxLeft.isOK) && boxUp && boxUp.isOK && !boxUp.isVisible)
                     {
                         boxUp.Show();
                         scBoxPassed.Add(boxUp);
@@ -192,7 +194,7 @@ namespace HieuBon
                 }
                 else if (target.row == lastSelect.row - 1 && target.col == lastSelect.col + 1)
                 {
-                    if (boxRight && boxRight.isOK && (!boxUp || !boxUp.isOK))
+                    if (boxRight && boxRight.isOK && !boxRight.isVisible && (!boxUp || !boxUp.isOK))
                     {
                         boxRight.Show();
                         scBoxPassed.Add(boxRight);
@@ -209,14 +211,14 @@ namespace HieuBon
                 }
                 else if (target.row == lastSelect.row + 1 && target.col == lastSelect.col - 1)
                 {
-                    if (boxLeft && boxLeft.isOK && (!boxDown || !boxDown.isOK))
+                    if (boxLeft && boxLeft.isOK && !boxLeft.isVisible && (!boxDown || !boxDown.isOK))
                     {
                         boxLeft.Show();
                         scBoxPassed.Add(boxLeft);
                         LineSetPos(new Vector3(boxLeft.transform.position.x, boxLeft.transform.position.y + 0.025f, 100));
                         isOk = true;
                     }
-                    else if ((!boxLeft || !boxLeft.isOK) && boxDown && boxDown.isOK)
+                    else if ((!boxLeft || !boxLeft.isOK) && boxDown && boxDown.isOK && !boxDown.isVisible)
                     {
                         boxDown.Show();
                         scBoxPassed.Add(boxDown);
@@ -226,14 +228,14 @@ namespace HieuBon
                 }
                 else if (target.row == lastSelect.row + 1 && target.col == lastSelect.col + 1)
                 {
-                    if (boxRight && boxRight.isOK && (!boxDown || !boxDown.isOK))
+                    if (boxRight && boxRight.isOK && !boxRight.isVisible && (!boxDown || !boxDown.isOK))
                     {
                         boxRight.Show();
                         scBoxPassed.Add(boxRight);
                         LineSetPos(new Vector3(boxRight.transform.position.x, boxRight.transform.position.y + 0.025f, 100));
                         isOk = true;
                     }
-                    else if ((!boxRight || !boxRight.isOK) && boxDown & boxDown.isOK)
+                    else if ((!boxRight || !boxRight.isOK) && boxDown && boxDown.isOK && !boxDown.isVisible)
                     {
                         boxDown.Show();
                         scBoxPassed.Add(boxDown);
@@ -248,39 +250,110 @@ namespace HieuBon
                     LineSetPos(new Vector3(target.transform.position.x, target.transform.position.y + 0.025f, 100));
                 }
             }
-            if(scBoxPassed.Count == GameController.instance.levelConfig.totalWin)
+            if (scBoxPassed.Count == GameController.instance.levelConfig.totalWin)
             {
-                UIController.instance.ActiveTouch(false);
-                scBoxPassed[0].ShowStart();
-                scBoxPassed[scBoxPassed.Count - 1].ShowEnd();
+                Win();
+            }
+        }
 
-                scBoxPassed[0].iconStart.transform.DOScale(1.1f, 0.1f).SetUpdate(true);
-                scBoxPassed[scBoxPassed.Count - 1].iconEnd.transform.DOScale(1.1f, 0.1f).SetUpdate(true);
-                DOVirtual.Float(0.25f, 0.3f, 0.1f, (v) =>
+        public void Win()
+        {
+            PlayerPrefs.SetInt(GameController.instance.type.ToString(), PlayerPrefs.GetInt(GameController.instance.type.ToString(), 1) + 1);
+            //Debug.LogWarning(PlayerPrefs.GetInt(GameController.instance.type.ToString(), 1));
+            GameController.instance.SaveLevel();
+            UIController.instance.gamePlay.UIEndActive(false);
+
+            UIController.instance.ActiveTouch(false);
+            scBoxPassed[0].ShowStart();
+            scBoxPassed[scBoxPassed.Count - 1].ShowEnd();
+
+            float time = GameController.instance.GetTime();
+
+            scBoxPassed[0].iconStart.transform.DOScale(1.1f, 0.25f).SetUpdate(true);
+            scBoxPassed[scBoxPassed.Count - 1].iconEnd.transform.DOScale(1.1f, 0.25f).SetUpdate(true);
+            DOVirtual.Float(0.25f, 0.3f, 0.25f, (v) =>
+            {
+                lineRenderer.startWidth = v;
+                lineRenderer.endWidth = v;
+            }).SetUpdate(true);
+
+            for (int i = 0; i < scBoxPassed.Count; i++)
+            {
+                int index = i;
+                DOVirtual.DelayedCall(index * time, delegate
+                {
+                    scBoxPassed[index].PlayLightWinAni();
+                });
+            }
+            DOVirtual.DelayedCall((scBoxPassed.Count - 1) * time, delegate
+            {
+                scBoxPassed[0].iconStart.transform.DOScale(1f, 0.25f).SetUpdate(true);
+                scBoxPassed[scBoxPassed.Count - 1].iconEnd.transform.DOScale(1f, 0.25f).SetUpdate(true);
+                DOVirtual.Float(0.3f, 0.25f, 0.25f, (v) =>
                 {
                     lineRenderer.startWidth = v;
                     lineRenderer.endWidth = v;
                 }).SetUpdate(true);
+            });
+        }
 
-                for (int i = 0; i < scBoxPassed.Count; i++)
-                {
-                    int index = i;
-                    DOVirtual.DelayedCall(index * 0.025f, delegate
-                    {
-                        scBoxPassed[index].PlayLightWinAni();
-                    });
-                }
-                DOVirtual.DelayedCall((scBoxPassed.Count - 1) * 0.025f, delegate
-                {
-                    scBoxPassed[0].iconStart.transform.DOScale(1f, 0.1f).SetUpdate(true);
-                    scBoxPassed[scBoxPassed.Count - 1].iconEnd.transform.DOScale(1f, 0.1f).SetUpdate(true);
-                    DOVirtual.Float(0.3f, 0.25f, 0.1f, (v) =>
-                    {
-                        lineRenderer.startWidth = v;
-                        lineRenderer.endWidth = v;
-                    }).SetUpdate(true);
-                });
+        public void Hint()
+        {
+            if (isHinting) return;
+            isHinting = true;
+            int indexLastHint = IndexLastHint();
+            StartCoroutine(SubtractLine(indexLastHint));
+        }
+
+        IEnumerator SubtractLine(int indexLastHint)
+        {
+            for (int i = scBoxPassed.Count - 1; i >= indexLastHint; i--)
+            {
+                Box box = scBoxPassed[i];
+                box.Hide();
+                scBoxPassed.Remove(box);
+                lineRenderer.positionCount--;
+                yield return new WaitForSeconds(0.1f);
             }
+
+            for (int i = indexLastHint; i < indexLastHint + 2; i++)
+            {
+                if (i < GameController.instance.levelConfig.totalWin)
+                {
+                    int row = GameController.instance.levelConfig.boxPassed[i].row;
+                    int col = GameController.instance.levelConfig.boxPassed[i].col;
+                    Box box = GameController.instance.boxes[row][col];
+                    scBoxPassed.Add(box);
+
+                    yield return new WaitForSeconds(0.1f);
+
+                    box.Show();
+                    LineSetPos(new Vector3(box.transform.position.x, box.transform.position.y + 0.025f, 100));
+
+                    if (scBoxPassed.Count == GameController.instance.levelConfig.totalWin)
+                    {
+                        Win();
+                    }
+                }
+            }
+            isHinting = false;
+        }
+
+        int IndexLastHint()
+        {
+            int i = 0;
+            for (; i < scBoxPassed.Count; i++)
+            {
+                /*Debug.LogWarning("--------------------");
+                Debug.LogWarning(scBoxPassed[i].row + " " + scBoxPassed[i].col);
+                Debug.LogWarning(GameController.instance.levelConfig.boxPassed[i].row + " " + GameController.instance.levelConfig.boxPassed[i].col);*/
+                if (scBoxPassed[i].row != GameController.instance.levelConfig.boxPassed[i].row
+                    || scBoxPassed[i].col != GameController.instance.levelConfig.boxPassed[i].col)
+                {
+                    return i;
+                }
+            }
+            return i;
         }
 
         bool IsAStraightRow(int row, int min, int max, Box lastSelect)
@@ -325,13 +398,7 @@ namespace HieuBon
             }
         }
 
-        public void Restart()
-        {
-            scBoxPassed.Clear();
-            ResetLine();
-        }
-
-        public void OnDestroy()
+        public void Kill()
         {
             lineRenderer.DOKill();
             if (scBoxPassed.Count != 0)
@@ -339,6 +406,18 @@ namespace HieuBon
                 scBoxPassed[0].DOKill();
                 scBoxPassed[scBoxPassed.Count - 1].DOKill();
             }
+        }
+
+        public void Restart()
+        {
+            Kill();
+            scBoxPassed.Clear();
+            ResetLine();
+        }
+
+        public void OnDestroy()
+        {
+            Kill();
         }
     }
 }

@@ -9,6 +9,7 @@ namespace HieuBon
 
         public GameObject touchHover;
         public Image touchHoverImage;
+        public GamePlay gamePlay;
         public Camera cam;
 
         public void Awake()

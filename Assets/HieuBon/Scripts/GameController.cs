@@ -1,5 +1,6 @@
+using System.Collections;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 namespace HieuBon
 {
@@ -10,12 +11,15 @@ namespace HieuBon
         public Color defaultColor;
         public PlayerController playerController;
         public DataManager dataManager;
+        public GridLayoutGroup gridLayoutGroup;
         public Color lineColor;
         public Color boxColor;
         public Box[] pools;
         public Box[][] boxes = new Box[7][];
         public LevelDataStorage levelDataStorage;
         public LevelConfig levelConfig;
+        public LevelType type;
+        public int level;
 
         public enum LevelType
         {
@@ -28,36 +32,67 @@ namespace HieuBon
             Generate();
         }
 
-        private void Start()
+        public float GetTime()
         {
-            //LoadLevel();
+            if (levelConfig.boxPassed.Length < 10) return 0.1f;
+            else if (levelConfig.boxPassed.Length < 20) return 0.085f;
+            else if (levelConfig.boxPassed.Length < 30) return 0.065f;
+            else if (levelConfig.boxPassed.Length < 40) return 0.045f;
+            else return 0.025f;
+        }
+
+        public LevelType GetType(int type)
+        {
+            if (type == 0) return LevelType.Easy;
+            else if (type == 1) return LevelType.Normal;
+            else if (type == 2) return LevelType.Hard;
+            else return LevelType.ExtraHard;
         }
 
         public void SaveLevel(int i, int j, bool isVisible)
         {
             if (isVisible) levelDataStorage.boxDataStorages.Add(new BoxDataStorage(i, j));
             else levelDataStorage.boxDataStorages.Remove(levelDataStorage.boxDataStorages[levelDataStorage.boxDataStorages.Count - 1]);
-            dataManager.SaveLevel(levelDataStorage, levelConfig.type);
+            dataManager.SaveLevel(levelDataStorage, type);
         }
 
         public void SaveLevel()
         {
-            dataManager.SaveLevel(dataManager.CreateLevelDataStorage(), levelConfig.type);
+            dataManager.SaveLevel(dataManager.CreateLevelDataStorage(), type);
         }
 
         public void ResartLevel()
         {
             SaveLevel();
-            LoadLevel();
+            StartCoroutine(LoadLevel());
         }
 
-        public void LoadLevel()
+        public void SetLevel(LevelType type, int level)
+        {
+            this.type = type;
+            this.level = level;
+        }
+
+        public IEnumerator LoadLevel()
         {
             ResetBoxes();
             playerController.Restart();
+            levelConfig = dataManager.GetLevel(level, type);
+            levelDataStorage = dataManager.GetLevelStorage(type);
 
-            levelConfig = dataManager.GetLevel(1, LevelType.ExtraHard);
-            levelDataStorage = dataManager.GetLevelStorage(LevelType.ExtraHard);
+            int sizeHoriPadding = levelConfig.horiPadding;
+            int sizeVertPadding = levelConfig.vertPadding;
+            int sizeHoriSpacing = sizeHoriPadding - 1;
+            int sizeVertSpacing = sizeVertPadding - 1;
+            if (sizeHoriPadding == 0) sizeHoriSpacing = 0;
+            if (sizeVertPadding == 0) sizeVertSpacing = 0;
+
+            gridLayoutGroup.enabled = false;
+            gridLayoutGroup.padding.left = (int)gridLayoutGroup.cellSize.x * sizeHoriPadding + (int)gridLayoutGroup.spacing.x * sizeHoriSpacing;
+            gridLayoutGroup.padding.top = (int)gridLayoutGroup.cellSize.y * sizeVertPadding + (int)gridLayoutGroup.spacing.x * sizeVertSpacing;
+
+            yield return new WaitForEndOfFrame();
+            gridLayoutGroup.enabled = true;
 
             Color color;
             if (ColorConvert(levelConfig.boxHex, out color))

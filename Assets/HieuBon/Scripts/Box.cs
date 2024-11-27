@@ -30,7 +30,6 @@ namespace HieuBon
 
         public void LoadData()
         {
-            //Debug.LogWarning(name + " " + isVisible);
             isVisible = true;
             image.color = GameController.instance.boxColor;
             GameController.instance.playerController.AddBoxPassed(this);
@@ -40,7 +39,7 @@ namespace HieuBon
         public void IsOk(bool isOK)
         {
             this.isOK = isOK;
-            if (!this.isOK) canvasGroup.alpha = 0;
+            if (this.isOK) canvasGroup.alpha = 1;
         }
 
         public void PlayLightAni()
@@ -90,7 +89,7 @@ namespace HieuBon
             iconEnd.gameObject.SetActive(false);
             isVisible = false;
             isOK = false;
-            canvasGroup.alpha = 1;
+            canvasGroup.alpha = 0;
             image.color = GameController.instance.defaultColor;
         }
     }

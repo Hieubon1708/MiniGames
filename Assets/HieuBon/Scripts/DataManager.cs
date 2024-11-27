@@ -7,9 +7,18 @@ namespace HieuBon
 {
     public class DataManager : MonoBehaviour
     {
-        private void Awake()
+        public enum Size
         {
-            //GenerateLevel(GameController.LevelType.ExtraHard);
+            Size3, Size4, Size5, Size6, Size7
+        }
+
+        public int GetSize(Size size)
+        {
+            if (size == Size.Size3) return 7 - 3;
+            else if (size == Size.Size4) return 7 - 4;
+            else if (size == Size.Size5) return 7 - 5;
+            else if (size == Size.Size6) return 7 - 6;
+            else return 0;
         }
 
         void GenerateLevel(GameController.LevelType type)
@@ -36,8 +45,10 @@ namespace HieuBon
 
         public LevelConfig GetLevel(int level, GameController.LevelType type)
         {
-            TextAsset js = Resources.Load<TextAsset>(type.ToString() + "/" + level);
-            return JsonConvert.DeserializeObject<LevelConfig>(js.text);
+            string folderPath = "Assets/HieuBon/Resources/" + type.ToString();
+            string[] files = Directory.GetFiles(folderPath, "*.json");
+            string jsonText = File.ReadAllText(files[level - 1]);
+            return JsonConvert.DeserializeObject<LevelConfig>(jsonText);
         }
 
         public LevelDataStorage GetLevelStorage(GameController.LevelType type)
@@ -67,15 +78,24 @@ namespace HieuBon
             string path = Path.Combine(Application.persistentDataPath, type.ToString() + ".json");
             File.WriteAllText(path, js);
         }
+
+        public int GetTotal(string path)
+        {
+            string folderPath = "Assets/HieuBon/Resources/" + path;
+            string[] files = Directory.GetFiles(folderPath, "*.json");
+            return files.Length;
+        }
     }
 
     [System.Serializable]
     public class LevelConfig
     {
-        public GameController.LevelType type;
+        public int horiPadding;
+        public int vertPadding;
         public string boxHex;
         public int totalWin;
         public BoxConfig[][] boxConfigs;
+        public BoxDataStorage[] boxPassed;
     }
 
     [System.Serializable]

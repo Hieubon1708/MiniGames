@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 3353655408904685328}
   - component: {fileID: 1676214926069584573}
   - component: {fileID: 6483997191529785727}
+  - component: {fileID: 6096049417984834794}
+  - component: {fileID: 4132045951256254959}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -75,6 +77,34 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!111 &6096049417984834794
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 688364603126920931}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 7400000, guid: 0eb68e37fe009fc4c816c10303ee0be8, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 0eb68e37fe009fc4c816c10303ee0be8, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_CullingType: 0
+--- !u!225 &4132045951256254959
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 688364603126920931}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1979190454611696789
 GameObject:
   m_ObjectHideFlags: 0
@@ -278,8 +308,6 @@ GameObject:
   - component: {fileID: 5357764357528065157}
   - component: {fileID: 2619715630400795208}
   - component: {fileID: 8360287927058568746}
-  - component: {fileID: 4644412029604177093}
-  - component: {fileID: 8332419032634701134}
   - component: {fileID: 2473586379254116175}
   m_Layer: 5
   m_Name: IconEnd
@@ -346,34 +374,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!111 &4644412029604177093
-Animation:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5688145684986386902}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Animation: {fileID: 7400000, guid: 330e3363f64b87a45827936002bce709, type: 2}
-  m_Animations:
-  - {fileID: 7400000, guid: 330e3363f64b87a45827936002bce709, type: 2}
-  m_WrapMode: 0
-  m_PlayAutomatically: 1
-  m_AnimatePhysics: 0
-  m_CullingType: 0
---- !u!225 &8332419032634701134
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5688145684986386902}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
 --- !u!223 &2473586379254116175
 Canvas:
   m_ObjectHideFlags: 0
