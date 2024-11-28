@@ -40,14 +40,14 @@ namespace OneLine
                 }
             }
             string js = JsonConvert.SerializeObject(levelConfig);
-            string path = Path.Combine(Application.dataPath, "HieuBon/Resources/OneLine/" + type.ToString() + "/" + 1 + ".json");
+            string path = Path.Combine(Application.dataPath, "Assets/OneLine/Resources/" + type.ToString() + " /" + 1 + ".json");
             File.WriteAllText(path, js);
         }
 
 
         public LevelConfig GetLevel(int level, GameController.LevelType type)
         {
-            string folderPath = "Assets/HieuBon/Resources/OneLine/" + type.ToString();
+            string folderPath = "Assets/OneLine/Resources/" + type.ToString();
             string[] files = Directory.GetFiles(folderPath, "*.json");
             string jsonText = File.ReadAllText(files[level - 1]);
             fileName = files[level - 1].Replace(folderPath + "\\", "").Replace(".json", "");
@@ -89,7 +89,7 @@ namespace OneLine
 
         public int GetTotal(string path)
         {
-            string folderPath = "Assets/HieuBon/Resources/OneLine/" + path;
+            string folderPath = "Assets/OneLine/Resources/" + path;
             string[] files = Directory.GetFiles(folderPath, "*.json");
             return files.Length;
         }

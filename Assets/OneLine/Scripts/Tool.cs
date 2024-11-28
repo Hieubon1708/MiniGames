@@ -89,14 +89,14 @@ namespace OneLine
 
         int GetTotal(string path)
         {
-            string folderPath = "Assets/HieuBon/Resources/OneLine/" + path;
+            string folderPath = "Assets/OneLine/Resources/" + path;
             string[] files = Directory.GetFiles(folderPath, "*.json");
             return files.Length;
         }
 
         void LevelModifi()
         {
-            string folderPath = "Assets/HieuBon/Resources/OneLine/" + GameController.LevelType.ExtraHard.ToString();
+            string folderPath = "Assets/OneLine/Resources/" + GameController.LevelType.ExtraHard.ToString();
             string[] files = Directory.GetFiles(folderPath, "*.json");
             for (int k = 0; k < files.Length; k++)
             {
@@ -347,11 +347,11 @@ namespace OneLine
             else if (sizeX == 5) folder = "6x6";
             else folder = "7x7";
 
-            if(minCol - 0 > boxes.Length - maxCol) levelConfig.horiPadding = -minCol;
+            if(minCol - 0 > boxes.Length - 1 - maxCol) levelConfig.horiPadding = -minCol;
             else if(minCol - 0 < boxes.Length - 1 - maxCol) levelConfig.horiPadding = boxes.Length - 1 - maxCol;
             else levelConfig.horiPadding = 0;
 
-            if (minRow - 0 > boxes.Length - maxRow) levelConfig.vertPadding = -minRow;
+            if (minRow - 0 > boxes.Length - 1 - maxRow) levelConfig.vertPadding = -minRow;
             else if (minRow - 0 < boxes.Length - 1 - maxRow) levelConfig.vertPadding = boxes.Length - 1 - maxRow;
             else levelConfig.vertPadding = 0;
 
@@ -360,7 +360,7 @@ namespace OneLine
 
             int level = GetTotal(folder) + 1;
             string js = JsonConvert.SerializeObject(levelConfig);
-            string path = Path.Combine(Application.dataPath, "HieuBon/Resources/OneLine/" + folder + "/" + folder + "_" + level + ".json");
+            string path = Path.Combine(Application.dataPath, "Assets/OneLine/Resources/" + folder + "_" + level + ".json");
             File.WriteAllText(path, js);
 
             Debug.Log("Hori Padding = " + levelConfig.horiPadding);

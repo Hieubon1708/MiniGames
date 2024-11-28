@@ -16,7 +16,6 @@ namespace OneLine
         public void Awake()
         {
             instance = this;
-            cam = FindAnyObjectByType<Camera>();
         }
 
         public void TouchSetColor(Color color)
